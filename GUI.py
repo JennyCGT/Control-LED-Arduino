@@ -1,22 +1,16 @@
 from PyQt5 import QtWidgets
 import serial
 import sys
-import glob
-import os
-import struct   
 import json
 from csv import writer
 import serial.tools.list_ports
-from datetime import datetime, timedelta
-from PyQt5.QtCore import QDateTime, Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (QApplication, QComboBox, QDateTimeEdit,QSlider,
         QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel,QPushButton, QRadioButton, QScrollBar, QSizePolicy,
         QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
         QVBoxLayout, QWidget, QMainWindow, QFontComboBox,QMessageBox)
 from PyQt5.QtGui import QFont,QPixmap
-from PyQt5 import QtCore
-from PyQt5.QtSerialPort import QSerialPortInfo
-import signal
+
 global settings
 with open ('settings.json') as _file:
     settings = json.loads(_file.read())
@@ -41,17 +35,15 @@ class Screen(QWidget):
         grid.addWidget(self.serial_settings(), 1, 0)
         grid.addWidget(self.slider_bar(), 2,0)
         grid.addWidget(self.values_box(),3,0,2,1)
-        # grid.setColumnStretch(0, 4)        
-        # grid.setRowStretch(0, 3)
         self.setWindowTitle('Brightness Controller')
         self.show()
 
     ############ SERIAL SETTINGS
     def serial_settings(self):
+        global settings
         self.box_serial = QGroupBox("Serial Settings")
         text_port = QLabel("Port")        
         self.port = QComboBox()
-        # self.port.addItem("Choose a Port")
         if(settings['port'] == ""):
             self.port_selec =""
             self.port.addItem("Choose a Port")
@@ -60,7 +52,7 @@ class Screen(QWidget):
         self.ports = list(serial.tools.list_ports.comports())
         for i in self.ports:
             self.port.addItem(i.device)
-
+        self.port.setCurrentText(settings['port'])
         self.port.activated.connect(self.selec_port)
     
         text_baud = QLabel("Baudrate")
@@ -100,7 +92,6 @@ class Screen(QWidget):
         self.slider.setTickInterval(10)        
         self.slider.valueChanged.connect(self.get_value)
         size = self.slider.size()
-        # print(size)
 
         self.icon = QLabel(self)
         image = QPixmap('image\empty.png')
@@ -195,7 +186,6 @@ class Screen(QWidget):
         self.value_data.setText(str(self.value_led))
         self.normal_value.setValue(self.value_led)
         self.value_data_s.setText(str(self.value_led/100)+" s")
-        print(self.value_led)
 
     # Get box values
     def get_value_box(self, event):

@@ -33,6 +33,7 @@ class Serial_com:
         self.STX = b'STX'
         self.ETX = b'ETX'
         self.data = b'0'
+        # Thread for writting serial Port
         self.t1 = Thread(target = self.loop)
         self.t1.start()
 
@@ -42,13 +43,14 @@ class Serial_com:
             if stop_threads: 
                 self.ser.close()
                 break 
-            print(frame.value_led)     
+            # Transform the value of brightness to byte
             self.data = frame.value_led.to_bytes(1,'big')
+            # Send trama to arduino
             self.ser.write(self.STX)
             self.ser.write(self.data)
             self.ser.write(self.ETX)
-            print(self.STX, self.data, self.ETX)
-            time.sleep(1)
+            # Period of transmition
+            time.sleep(0.1)
         self.ser.close()
 
 def onConnect(event):
