@@ -22,8 +22,9 @@ with open ('settings.json') as _file:
     settings = json.loads(_file.read())
 
 class Screen(QWidget):
-    def __init__(self, parent = None):
+    def __init__(self , onConnect, parent = None):
         super(Screen, self).__init__(parent)
+        self.onConnect = onConnect
         self.port_selec=''
         self.baud_selec='115200'
         self.choices=[]
@@ -99,7 +100,7 @@ class Screen(QWidget):
         self.slider.setTickInterval(10)        
         self.slider.valueChanged.connect(self.get_value)
         size = self.slider.size()
-        print(size)
+        # print(size)
 
         self.icon = QLabel(self)
         image = QPixmap('image\empty.png')
@@ -187,26 +188,6 @@ class Screen(QWidget):
         with open ('settings.json','w') as _file:
             json.dump(settings,_file)
 
-    # Start thread of Serial Communication
-    def onConnect(self, event):
-        # Detect if the port was selected
-        if self.connect_button.text()=='Connect':
-            if(self.port_selec == '' or self.port_selec == 'Choose a port'):
-                self.showDialog()
-            else:
-                # Start Serial protocol
-                self.connect_button.setText('Disconnect')
-                # Disable the options for port and baudrate
-                self.port.setDisabled(True)
-                self.baud.setDisabled(True)
-                flag_data = True
-        else:
-            self.connect_button.setText('Connect')
-            stop_threads = True
-            flag_data = False
-            self.ser_msg.setText("Close")            
-            self.port.setDisabled(False)
-            self.baud.setDisabled(False)
 
     # Get slider number 
     def get_value(self, event):
@@ -221,6 +202,16 @@ class Screen(QWidget):
         self.value_box = self.normal_value.value()
         self.slider.setValue(self.value_box)
         self.value_data_s.setText(str(self.value_box/100)+" s")
+
+    def showDialog(self):
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setWindowTitle("Alert")
+        msgBox.setText("Choose a valid port")
+        msgBox.setStandardButtons(QMessageBox.Ok )
+
+        returnValue = msgBox.exec()
+    
 
 
 # if __name__ == "__main__":

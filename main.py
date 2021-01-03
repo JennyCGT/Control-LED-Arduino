@@ -6,7 +6,8 @@ import glob
 import os
 import struct   
 import json
-from collections import deque 
+from collections import deque
+from serial.serialwin32 import Serial 
 import serial.tools.list_ports
 from datetime import datetime, timedelta
 import signal
@@ -21,7 +22,6 @@ flag_data=False
 flag_save= False
 line =1
 event = Event()
-global frame
 
 class Serial_com:
     def __init__(self, port, baud):
@@ -33,7 +33,6 @@ class Serial_com:
         self.STX = b'STX'
         self.ETX = b'ETX'
         self.data = b'0'
-        # Thread for reading serial Port
         self.t1 = Thread(target = self.loop)
         self.t1.start()
 
@@ -41,17 +40,45 @@ class Serial_com:
         while True:
             global stop_threads, frame, event
             if stop_threads: 
-                break      
-            self.data = bytes(frame.value_led)
+                self.ser.close()
+                break 
+            print(frame.value_led)     
+            self.data = frame.value_led.to_bytes(1,'big')
             self.ser.write(self.STX)
             self.ser.write(self.data)
             self.ser.write(self.ETX)
-        self.ser.close()    
-    
+            print(self.STX, self.data, self.ETX)
+            time.sleep(1)
+        self.ser.close()
+
+def onConnect(event):
+    global stop_threads, serial_p
+    # Detect if the port was selected
+    if frame.connect_button.text()=='Connect':
+        if(frame.port_selec == '' or frame.port_selec == 'Choose a port'):
+            frame.showDialog()
+        else:
+            # Start Serial protocol
+            stop_threads = False
+            frame.connect_button.setText('Disconnect')
+            serial_p = Serial_com(frame.port_selec, frame.baud_selec)
+            print(serial_p)
+            # Disable the options for port and baudrate
+            frame.port.setDisabled(True)
+            frame.baud.setDisabled(True)
+            
+    else:
+        stop_threads = True
+        frame.connect_button.setText('Connect')
+        frame.port.setDisabled(False)
+        frame.baud.setDisabled(False)
+
+
 if __name__ == "__main__":
+    global frame
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QApplication([])
-    frame = Screen()
+    frame = Screen(onConnect=onConnect)
     app.exec_()
     stop_threads = True 
 
