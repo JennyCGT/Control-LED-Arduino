@@ -5,16 +5,21 @@ control the brightness of a led.
 
 ## Instalation
 - Create a virtual environment
+
 python -m venv env 
 
 - Activate environmente
+
 Windows: .\env\Scritps\activate
+
 Linux: source env\bin\activate
 
 - Install Requirements
+
 pip install -r requirements.txt
 
 - Execute the GUI
+
 python main.py
 
 ## Interface
