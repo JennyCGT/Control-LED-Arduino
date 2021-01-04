@@ -6,7 +6,7 @@ control the brightness of a led.
 ## Instalation
 - Create a virtual environment
 
-python -m venv env 
+py -m venv env 
 
 - Activate environmente
 
