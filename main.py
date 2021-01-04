@@ -12,6 +12,7 @@ import serial.tools.list_ports
 from datetime import datetime, timedelta
 import signal
 from GUI import *
+from PyQt5.QtGui import QFont,QPixmap
 look= Lock()
 
 # Global Parametes
@@ -61,6 +62,8 @@ def onConnect(event):
             frame.showDialog()
         else:
             # Start Serial protocol
+            image = QPixmap('image\green-icon.png')
+            frame.icon_serial.setPixmap(image)
             stop_threads = False
             frame.connect_button.setText('Disconnect')
             serial_p = Serial_com(frame.port_selec, frame.baud_selec)
@@ -70,6 +73,8 @@ def onConnect(event):
             frame.baud.setDisabled(True)
             
     else:
+        image = QPixmap('image\disconect-icon.png')
+        frame.icon_serial.setPixmap(image)
         stop_threads = True
         frame.connect_button.setText('Connect')
         frame.port.setDisabled(False)

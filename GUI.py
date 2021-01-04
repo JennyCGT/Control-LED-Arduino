@@ -67,6 +67,10 @@ class Screen(QWidget):
         self.connect_button = QPushButton('Connect')
         self.connect_button.clicked.connect(self.onConnect)
 
+        self.icon_serial = QLabel(self)
+        image = QPixmap('image\disconect-icon.png')
+        self.icon_serial.setPixmap(image)
+
         b1 = QHBoxLayout()
         b1.addStretch(1)
         b1.addWidget(text_port)
@@ -76,9 +80,11 @@ class Screen(QWidget):
         b1.addWidget(self.baud)
         b1.addStretch(2)
         b1.addWidget(self.connect_button) 
+        b1.addWidget(self.icon_serial)
         
         # self.box_serial.setStyleSheet("background-color: #F1F7EE")
         self.box_serial.setLayout(b1)
+        self.box_serial.setStyleSheet("background-color: #E1EFF6")
         return self.box_serial
     
     ############ SLIDER BAR
