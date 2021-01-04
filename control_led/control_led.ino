@@ -28,9 +28,9 @@ void loop() {
 
   brightness_scale = map(brightness,0,100,0,1000);
   digitalWrite(led, HIGH);
-  delay(brightness);     // espera un cuarto de segundo
+  delayMicroseconds(brightness);     // espera un cuarto de segundo
   digitalWrite(led, LOW); // asigna el valor LOW al pin
-  delay(100-brightness);  
+  delayMicroseconds(100-brightness);  
   if (Serial.available()>0){
   Serial.readBytes(STX,3);
     STX[4] = 0;
