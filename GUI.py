@@ -30,6 +30,7 @@ class Screen(QWidget):
 
         title = QLabel("        Brightness Controller      ")
         title.setFont(QFont("Times",23,weight=QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
 
         grid.addWidget(title,0,0)
         grid.addWidget(self.serial_settings(), 1, 0)
@@ -131,22 +132,22 @@ class Screen(QWidget):
         self.normal_value = QSpinBox()
         self.normal_value.setRange(0,100)
         self.normal_value.setSingleStep(10)
-        self.normal_value.setAlignment(Qt.AlignHCenter)
+        self.normal_value.setAlignment(Qt.AlignCenter)
         self.normal_value.setFont(QFont("Times",15))
         self.normal_value.valueChanged.connect(self.get_value_box)
         # self.normal_value.setFont(QFont("Times",15,weight=QFont.Bold))
 
         self.value_data_s = QLabel("00")
         self.value_data_s.setStyleSheet("background-color:#F1F7EE")
-        self.value_data_s.setAlignment(Qt.AlignHCenter)
+        self.value_data_s.setAlignment(Qt.AlignCenter)
         self.value_data_s.setFont(QFont("Times",15))
 
         title = QLabel("Brightness value")
         title.setFont(QFont("Times",13, weight= QFont.Bold))
-        title.setAlignment(Qt.AlignHCenter)
-        title2 = QLabel("Brightness value in sec")
+        title.setAlignment(Qt.AlignCenter)
+        title2 = QLabel("Period time on high")
         title2.setFont(QFont("Times",13, weight= QFont.Bold))
-        title2.setAlignment(Qt.AlignHCenter)
+        title2.setAlignment(Qt.AlignCenter)
 
         self.box_slider = QGroupBox("Value Controller")
         b1 = QHBoxLayout()
@@ -191,13 +192,13 @@ class Screen(QWidget):
         self.value_led = self.slider.value()
         self.value_data.setText(str(self.value_led))
         self.normal_value.setValue(self.value_led)
-        self.value_data_s.setText(str(self.value_led/100)+" s")
+        self.value_data_s.setText(str(self.value_led/10)+" ms")
 
     # Get box values
     def get_value_box(self, event):
         self.value_box = self.normal_value.value()
         self.slider.setValue(self.value_box)
-        self.value_data_s.setText(str(self.value_box/100)+" s")
+        self.value_data_s.setText(str(self.value_box/10)+" ms")
 
     def showDialog(self):
         msgBox = QMessageBox()
