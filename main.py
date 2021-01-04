@@ -66,7 +66,6 @@ def onConnect(event):
             stop_threads = False
             frame.connect_button.setText('Disconnect')
             serial_p = Serial_com(frame.port_selec, frame.baud_selec)
-            print(serial_p)
             # Disable the options for port and baudrate
             frame.port.setDisabled(True)
             frame.baud.setDisabled(True)
