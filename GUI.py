@@ -68,7 +68,7 @@ class Screen(QWidget):
         self.connect_button.clicked.connect(self.onConnect)
 
         self.icon_serial = QLabel(self)
-        image = QPixmap('image\disconect-icon.png')
+        image = QPixmap('image/disconect-icon.png')
         self.icon_serial.setPixmap(image)
 
         b1 = QHBoxLayout()
@@ -100,7 +100,7 @@ class Screen(QWidget):
         size = self.slider.size()
 
         self.icon = QLabel(self)
-        image = QPixmap('image\empty.png')
+        image = QPixmap('image/empty.png')
         self.icon.setPixmap(image.scaled(30,30))
         # self.icon.setSize(20  0,200)
 

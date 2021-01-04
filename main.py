@@ -7,7 +7,6 @@ import os
 import struct   
 import json
 from collections import deque
-from serial.serialwin32 import Serial 
 import serial.tools.list_ports
 from datetime import datetime, timedelta
 import signal
@@ -62,7 +61,7 @@ def onConnect(event):
             frame.showDialog()
         else:
             # Start Serial protocol
-            image = QPixmap('image\green-icon.png')
+            image = QPixmap('image/green-icon.png')
             frame.icon_serial.setPixmap(image)
             stop_threads = False
             frame.connect_button.setText('Disconnect')
@@ -73,7 +72,7 @@ def onConnect(event):
             frame.baud.setDisabled(True)
             
     else:
-        image = QPixmap('image\disconect-icon.png')
+        image = QPixmap('image/disconect-icon.png')
         frame.icon_serial.setPixmap(image)
         stop_threads = True
         frame.connect_button.setText('Connect')
