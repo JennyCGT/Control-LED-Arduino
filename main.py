@@ -23,6 +23,7 @@ flag_save= False
 line =1
 event = Event()
 global serial_p
+serial_p = None
 class Serial_com:
     def __init__(self, port, baud):
         self.ser= serial.Serial(port,baud,\
@@ -53,7 +54,6 @@ class Serial_com:
             self.ser.write(self.data)
             self.ser.write(self.ETX)
             # Period of transmition
-            time.sleep(5)
             self.data = frame.value_off.to_bytes(1,'big')
             self.ser.write(self.SOH)
             self.ser.write(b'B')
@@ -92,29 +92,33 @@ def onConnect(event):
 
    # Get slider value ON
 def get_value_on(event):
+    global serial_p
     frame.value_on = frame.slider.value()
     frame.value_data.setText(str(frame.value_on))
     frame.value_data_s.setText(str(frame.value_on/10)+" ms")
     data = frame.value_on.to_bytes(1,'big')
     # Send trama to arduino
-    serial_p.ser.write(b'SOH')
-    serial_p.ser.write(b'A')
-    serial_p.ser.write(b'STX')
-    serial_p.ser.write(data)
-    serial_p.ser.write(b'ETX')
+    if(serial_p is not None):
+        serial_p.ser.write(b'SOH')
+        serial_p.ser.write(b'A')
+        serial_p.ser.write(b'STX')
+        serial_p.ser.write(data)
+        serial_p.ser.write(b'ETX')
 
 # Get slider value OFF
 def get_value_off(event):
+    global serial_p
     frame.value_off = frame.slider_off.value()
     frame.value_data_1.setText(str(frame.value_off))
     frame.value_data_off_s.setText(str(frame.value_off/10)+" ms")
     data = frame.value_off.to_bytes(1,'big')
     # Send trama to arduino
-    serial_p.ser.write(b'SOH')
-    serial_p.ser.write(b'B')
-    serial_p.ser.write(b'STX')
-    serial_p.ser.write(data)
-    serial_p.ser.write(b'ETX')
+    if(serial_p is not None):
+        serial_p.ser.write(b'SOH')
+        serial_p.ser.write(b'B')
+        serial_p.ser.write(b'STX')
+        serial_p.ser.write(data)
+        serial_p.ser.write(b'ETX')
 
 if __name__ == "__main__":
     global frame
