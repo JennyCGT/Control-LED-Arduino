@@ -22,7 +22,7 @@ flag_data=False
 flag_save= False
 line =1
 event = Event()
-
+global serial_p
 class Serial_com:
     def __init__(self, port, baud):
         self.ser= serial.Serial(port,baud,\
@@ -30,6 +30,7 @@ class Serial_com:
         stopbits=serial.STOPBITS_ONE,\
         bytesize=serial.EIGHTBITS,\
         timeout=(0.5))
+        self.SOH = b'SOH'
         self.STX = b'STX'
         self.ETX = b'ETX'
         self.data = b'0'
@@ -44,13 +45,23 @@ class Serial_com:
                 self.ser.close()
                 break 
             # Transform the value of brightness to byte
-            self.data = frame.value_led.to_bytes(1,'big')
+            self.data = frame.value_on.to_bytes(1,'big')
             # Send trama to arduino
+            self.ser.write(self.SOH)
+            self.ser.write(b'A')
             self.ser.write(self.STX)
             self.ser.write(self.data)
             self.ser.write(self.ETX)
             # Period of transmition
-            time.sleep(0.1)
+            time.sleep(5)
+            self.data = frame.value_off.to_bytes(1,'big')
+            self.ser.write(self.SOH)
+            self.ser.write(b'B')
+            self.ser.write(self.STX)
+            self.ser.write(self.data)
+            self.ser.write(self.ETX)
+            time.sleep(5)
+
         self.ser.close()
 
 def onConnect(event):
@@ -79,11 +90,37 @@ def onConnect(event):
         frame.baud.setDisabled(False)
 
 
+   # Get slider value ON
+def get_value_on(event):
+    frame.value_on = frame.slider.value()
+    frame.value_data.setText(str(frame.value_on))
+    frame.value_data_s.setText(str(frame.value_on/10)+" ms")
+    data = frame.value_on.to_bytes(1,'big')
+    # Send trama to arduino
+    serial_p.ser.write(b'SOH')
+    serial_p.ser.write(b'A')
+    serial_p.ser.write(b'STX')
+    serial_p.ser.write(data)
+    serial_p.ser.write(b'ETX')
+
+# Get slider value OFF
+def get_value_off(event):
+    frame.value_off = frame.slider_off.value()
+    frame.value_data_1.setText(str(frame.value_off))
+    frame.value_data_off_s.setText(str(frame.value_off/10)+" ms")
+    data = frame.value_off.to_bytes(1,'big')
+    # Send trama to arduino
+    serial_p.ser.write(b'SOH')
+    serial_p.ser.write(b'B')
+    serial_p.ser.write(b'STX')
+    serial_p.ser.write(data)
+    serial_p.ser.write(b'ETX')
+
 if __name__ == "__main__":
     global frame
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     app = QApplication([])
-    frame = Screen(onConnect=onConnect)
+    frame = Screen(onConnect=onConnect, get_value_on= get_value_on, get_value_off= get_value_off)
     app.exec_()
     stop_threads = True 
 

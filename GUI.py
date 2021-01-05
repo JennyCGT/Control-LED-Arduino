@@ -1,3 +1,4 @@
+from time import sleep
 from PyQt5 import QtWidgets
 import serial
 import sys
@@ -16,19 +17,22 @@ with open ('settings.json') as _file:
     settings = json.loads(_file.read())
 
 class Screen(QWidget):
-    def __init__(self , onConnect, parent = None):
+    def __init__(self , onConnect, get_value_on, get_value_off, parent = None):
         super(Screen, self).__init__(parent)
         self.onConnect = onConnect
+        self.get_value_on = get_value_on
+        self.get_value_off = get_value_off
         self.port_selec=''
         self.baud_selec='115200'
         self.choices=[]
         self.y_max = 100
         self.y_min = 0
-        self.value_led=0
+        self.value_on=0
+        self.value_off=100
         grid = QGridLayout()
         self.setLayout(grid)
 
-        title = QLabel("        Brightness Controller      ")
+        title = QLabel("               Brightness Controller                ")
         title.setFont(QFont("Times",23,weight=QFont.Bold))
         title.setAlignment(Qt.AlignCenter)
 
@@ -39,7 +43,7 @@ class Screen(QWidget):
         self.setWindowTitle('Brightness Controller')
         self.show()
 
-    ############ SERIAL SETTINGS
+############ SERIAL SETTINGS
     def serial_settings(self):
         global settings
         self.box_serial = QGroupBox("Serial Settings")
@@ -86,87 +90,110 @@ class Screen(QWidget):
         # self.box_serial.setStyleSheet("background-color: #F1F7EE")
         self.box_serial.setLayout(b1)
         self.box_serial.setStyleSheet("background-color: #E1EFF6")
+        self.box_serial.setFont(QFont("Segoe UI",12))
         return self.box_serial
     
-    ############ SLIDER BAR
+############ SLIDER BAR ON
     def slider_bar(self):
-        self.box_slider = QGroupBox("Slider Controller")
+        self.box_slider = QGroupBox("Time ON")
         self.slider = QSlider(Qt.Horizontal, self)
         self.slider.setMinimum(0)
         self.slider.setMaximum(100)
         self.slider.setValue(0)
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setTickInterval(10)        
-        self.slider.valueChanged.connect(self.get_value)
-        size = self.slider.size()
+        self.slider.valueChanged.connect(self.get_value_on)
+
+        self.icon = QLabel(self)
+        image = QPixmap('image/full.png')
+        self.icon.setPixmap(image.scaled(30,30))
+
+        self.value_data = QLabel(str(self.value_on))
+        self.value_data.setStyleSheet("background-color:#F1F7EE")
+        self.value_data.setAlignment(Qt.AlignCenter)
+        self.value_data.setFont(QFont("Segoe UI",16))
+
+        title2 = QLabel("Time in ms")
+        title2.setFont(QFont("Segoe UI",12, weight= QFont.Bold))
+        title2.setAlignment(Qt.AlignCenter)
+        self.value_data_s = QLabel("0.0")
+        self.value_data_s.setStyleSheet("background-color:#F1F7EE")
+        self.value_data_s.setAlignment(Qt.AlignCenter)
+        self.value_data_s.setFont(QFont("Segoe UI",16))
+
+
+        b1 = QHBoxLayout()
+        b1.addWidget(self.icon)
+        b1.addSpacing(20)
+        b1.addWidget(self.slider)
+        b1.addSpacing(50)
+        b1.addWidget(self.value_data)
+
+        b2 = QVBoxLayout()
+        b2.addWidget(title2)
+        b2.addWidget(self.value_data_s)
+
+        b3 = QHBoxLayout()
+        b3.addLayout(b1)
+        b3.addSpacing(20)
+        b3.addLayout(b2)
+        self.box_slider.setLayout(b3)
+        self.box_slider.setFont(QFont("Segoe UI",12))
+        return self.box_slider
+
+
+        # List COM availables 
+
+############ SLIDER BAR OFF
+    def values_box(self):
+        self.box_slider_off = QGroupBox("Time OFF")
+        self.slider_off = QSlider(Qt.Horizontal, self)
+        self.slider_off.setGeometry(50,50,320,200)
+        self.slider_off.setMinimum(0)
+        self.slider_off.setMaximum(100)
+        self.slider_off.setValue(100)
+        self.slider_off.setTickPosition(QSlider.TicksBelow)
+        self.slider_off.setTickInterval(10)        
+        self.slider_off.valueChanged.connect(self.get_value_off)
 
         self.icon = QLabel(self)
         image = QPixmap('image/empty.png')
         self.icon.setPixmap(image.scaled(30,30))
         # self.icon.setSize(20  0,200)
 
-        self.value_data = QLabel(str(self.value_led))
-        self.value_data.setStyleSheet("background-color:#F1F7EE")
-        self.value_data.setAlignment(Qt.AlignCenter)
-        self.value_data.setFont(QFont("Times",20))
+        self.value_data_1 = QLabel(str(self.value_off))
+        self.value_data_1.setStyleSheet("background-color:#F1F7EE")
+        self.value_data_1.setAlignment(Qt.AlignCenter)
+        self.value_data_1.setFont(QFont("Segoe UI",16))
         # self.value_data.setFont(QFont("Times",23,weight=QFont.Bold))
+
+        title2 = QLabel("Time in ms")
+        title2.setFont(QFont("Segoe UI",12, weight= QFont.Bold))
+        title2.setAlignment(Qt.AlignCenter)
+        self.value_data_off_s = QLabel("00")
+        self.value_data_off_s.setStyleSheet("background-color:#F1F7EE")
+        self.value_data_off_s.setAlignment(Qt.AlignCenter)
+        self.value_data_off_s.setFont(QFont("Segoe UI",16))
+
 
         b1 = QHBoxLayout()
         b1.addWidget(self.icon)
         b1.addSpacing(20)
-        b1.addWidget(self.slider)
-        b1.addSpacing(60)
-        b1.addWidget(self.value_data)
+        b1.addWidget(self.slider_off)
+        b1.addSpacing(50)
+        b1.addWidget(self.value_data_1)
 
-
-        b3 = QVBoxLayout()
-        b3.addLayout(b1)
-        self.box_slider.setLayout(b3)
-        return self.box_slider
-
-
-        # List COM availables 
-
-    ############ VALUES ON CHANGE
-    def values_box(self):
-        self.normal_value = QSpinBox()
-        self.normal_value.setRange(0,100)
-        self.normal_value.setSingleStep(10)
-        self.normal_value.setAlignment(Qt.AlignCenter)
-        self.normal_value.setFont(QFont("Times",15))
-        self.normal_value.valueChanged.connect(self.get_value_box)
-        # self.normal_value.setFont(QFont("Times",15,weight=QFont.Bold))
-
-        self.value_data_s = QLabel("00")
-        self.value_data_s.setStyleSheet("background-color:#F1F7EE")
-        self.value_data_s.setAlignment(Qt.AlignCenter)
-        self.value_data_s.setFont(QFont("Times",15))
-
-        title = QLabel("Brightness value")
-        title.setFont(QFont("Times",13, weight= QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-        title2 = QLabel("Period time on high")
-        title2.setFont(QFont("Times",13, weight= QFont.Bold))
-        title2.setAlignment(Qt.AlignCenter)
-
-        self.box_slider = QGroupBox("Value Controller")
-        b1 = QHBoxLayout()
-        b1.addWidget(self.normal_value)
-        # b1.addStretch(1)
-        b1.addWidget(self.value_data_s)
-
-        b2 = QHBoxLayout()
-        b2.addWidget(title)
-        # b2.addStretch(1)
+        b2 = QVBoxLayout()
         b2.addWidget(title2)
+        b2.addWidget(self.value_data_off_s)
 
-        b3 = QVBoxLayout()
-        b3.addLayout(b2)
-        b3.addSpacing(10)
+        b3 = QHBoxLayout()
         b3.addLayout(b1)
-
-        self.box_slider.setLayout(b3)
-        return self.box_slider
+        b3.addSpacing(20)
+        b3.addLayout(b2)
+        self.box_slider_off.setLayout(b3)
+        self.box_slider_off.setFont(QFont("Segoe UI",12))
+        return self.box_slider_off
 
     def List_port(self):
         self.port.clear()
@@ -187,19 +214,6 @@ class Screen(QWidget):
             json.dump(settings,_file)
 
 
-    # Get slider number 
-    def get_value(self, event):
-        self.value_led = self.slider.value()
-        self.value_data.setText(str(self.value_led))
-        self.normal_value.setValue(self.value_led)
-        self.value_data_s.setText(str(self.value_led/10)+" ms")
-
-    # Get box values
-    def get_value_box(self, event):
-        self.value_box = self.normal_value.value()
-        self.slider.setValue(self.value_box)
-        self.value_data_s.setText(str(self.value_box/10)+" ms")
-
     def showDialog(self):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -210,14 +224,6 @@ class Screen(QWidget):
         returnValue = msgBox.exec()
     
 
-
-# if __name__ == "__main__":
-#     signal.signal(signal.SIGINT, signal.SIG_DFL)
-#     app = QApplication([])
-#     frame = Screen()
-#     app.exec_()
-
-    
 
 
 
